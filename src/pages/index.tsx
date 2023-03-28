@@ -8,15 +8,25 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
 import { LoadingPage } from "~/components/loading";
+import { useState } from "react";
 
 dayjs.extend(relativeTime);
 
 const CreatePostWizard = () => {
   const { user } = useUser();
 
-  if (!user) return null;
+  const [input, setInput] = useState("");
 
-  console.log(user);
+  const ctx = api.useContext();
+
+  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+    onSuccess: () => {
+      setInput('');
+      void ctx.posts.getAll.invalidate();
+    },
+  });
+
+  if (!user) return null;
 
   return (
     <div className="flex w-full gap-3">
@@ -30,7 +40,12 @@ const CreatePostWizard = () => {
       <input
         placeholder="Type some emojis!"
         className="grow bg-transparent outline-none"
+        onChange={(e) => setInput(e.target.value)}
+        disabled={isPosting}
+        value={input}
+        type="text"
       />
+      <button onClick={() => mutate({ content: input })}>Post</button>
     </div>
   );
 };
@@ -45,7 +60,7 @@ const PostView = (props: PostWithUser) => {
       <Image
         src={author.profilePicture}
         className="h-14 w-14 rounded-full"
-        alt={`@${author.username ?? "Post"} profile picture`}
+        alt={`@${author.username} profile picture`}
         height={56}
         width={56}
       />
@@ -56,7 +71,7 @@ const PostView = (props: PostWithUser) => {
             post.createdAt
           ).fromNow()}`}</span>
         </div>
-        <span className="">{post.content}</span>
+        <span className="text-2xl">{post.content}</span>
       </div>
     </div>
   );
@@ -79,7 +94,6 @@ const Feed = () => {
 };
 
 const Home: NextPage = () => {
-  // 👨‍💻 🌎 🚀
   const { isLoaded, isSignedIn } = useUser();
 
   // start fetch asap
