@@ -5,9 +5,7 @@ const SinglePostPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Single Post</title>
-        <meta name="description" content="Single post content" />
-        <link rel="icon" href="/favicon.ico" />
+        <title>Post</title>
       </Head>
       <main className="flex h-screen justify-center">
         <div>Post View</div>
